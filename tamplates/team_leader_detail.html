@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-{{ leader.color }} shadow mb-4" style="border-width:2px;">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-{{ leader.color }} rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-user-tie text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <div>
+                        <h3 class="mb-0">{{ leader.name }}</h3>
+                        <div class="text-muted">Phone: <span class="fw-bold">{{ leader.phone }}</span></div>
+                        <span class="badge bg-{{ leader.color }}">Team Leader - {{ unit.name }}</span>
+                    </div>
+                </div>
+                <hr>
+                <h5 class="mb-3">Recruiters ({{ recruiters|length }}/{{ max_recruiters }})</h5>
+                <ul class="list-group mb-3">
+                    {% for recruiter in recruiters %}
+                    <li class="list-group-item">{{ recruiter }}</li>
+                    {% endfor %}
+                </ul>
+                {% if recruiters|length < max_recruiters %}
+                <form method="post" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="recruiter_name" class="form-control" placeholder="Add recruiter name..." required maxlength="50">
+                        <button class="btn btn-outline-{{ leader.color }}" type="submit">Add Recruiter</button>
+                    </div>
+                </form>
+                {% endif %}
+                <form method="post" class="mb-3">
+                    <div class="mb-3">
+                        <label for="hires" class="form-label">Number of Hires This Month</label>
+                        <input type="number" min="0" max="10" class="form-control" id="hires" name="hires" value="{{ hires if hires is not none else '' }}" required>
+                        <div class="form-text">Max: 10 hires for 100% performance</div>
+                    </div>
+                    <button type="submit" class="btn btn-{{ leader.color }}">Save & Calculate Performance</button>
+                </form>
+                {% if performance is not none %}
+                <div class="alert alert-{{ 'success' if performance >= 80 else 'warning' if performance >= 50 else 'danger' }} mt-3">
+                    <strong>Performance:</strong> {{ performance|round(1) }}%
+                    <div class="progress mt-2" style="height: 20px;">
+                        <div class="progress-bar bg-{{ leader.color }}" role="progressbar" style="width: {{ performance }}%;" aria-valuenow="{{ performance }}" aria-valuemin="0" aria-valuemax="100">{{ performance|round(1) }}%</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{{ url_for('units') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Unit</a>
+    </div>
+</div>
+{% endblock %} 

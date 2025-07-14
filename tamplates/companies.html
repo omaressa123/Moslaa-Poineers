@@ -1,0 +1,872 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.companies-header {
+    background: linear-gradient(135deg, #800080 0%, #3498db 100%);
+    color: white;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+.companies-header h1 {
+    font-size: 2.3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.companies-header .btn {
+    border-radius: 25px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(52,152,219,0.08);
+    margin-left: 0.5rem;
+}
+
+.company-card {
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(128,0,128,0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    background: #fff;
+}
+.company-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(52,152,219,0.15);
+}
+.company-card .card-body {
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+}
+.company-logo {
+    width: 56px;
+    height: 56px;
+    background: #800080;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-right: 1rem;
+    box-shadow: 0 2px 8px rgba(128,0,128,0.10);
+}
+.company-card .badge {
+    font-size: 0.95rem;
+    border-radius: 12px;
+    padding: 0.4em 0.9em;
+    font-weight: 500;
+}
+.company-card .btn {
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+.company-card .btn-outline-primary {
+    border-color: #800080;
+    color: #800080;
+}
+.company-card .btn-outline-primary:hover {
+    background: #800080;
+    color: #fff;
+}
+.company-card .btn-outline-secondary {
+    border-color: #3498db;
+    color: #3498db;
+}
+.company-card .btn-outline-secondary:hover {
+    background: #3498db;
+    color: #fff;
+}
+
+.table thead th {
+    background: #f3e6fa;
+    color: #800080;
+    font-weight: 600;
+    border-top: none;
+}
+.table tbody tr {
+    transition: background 0.2s;
+}
+.table tbody tr:hover {
+    background: #f8f9fa;
+}
+.table .badge {
+    font-size: 0.95rem;
+    border-radius: 12px;
+    padding: 0.4em 0.9em;
+    font-weight: 500;
+}
+
+.filter-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 16px rgba(128,0,128,0.06);
+    border: none;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    border-radius: 15px;
+    box-shadow: 0 4px 16px rgba(52,152,219,0.08);
+    border: none;
+    margin-top: 2rem;
+}
+.stats-card .card-title {
+    color: #800080;
+    font-weight: 600;
+}
+.stats-card h3 {
+    font-weight: 700;
+}
+</style>
+
+<div class="companies-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1><i class="fas fa-building me-2"></i>Companies</h1>
+        <small class="text-light opacity-75" id="syncStatus">
+            <i class="fas fa-info-circle me-1"></i>Checking sync status...
+        </small>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-light" id="syncSheets" title="Sync from Google Sheets">
+            <i class="fas fa-sync-alt me-1"></i>Sync Sheets
+        </button>
+        <button class="btn btn-outline-light" id="tableView">
+            <i class="fas fa-table me-1"></i>Table View
+        </button>
+        <button class="btn btn-light text-primary" id="cardView">
+            <i class="fas fa-th me-1"></i>Card View
+        </button>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card filter-card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <label class="form-label">Search Companies</label>
+                <input type="text" class="form-control" id="searchCompanies" placeholder="Search by name, status...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="On hold">On Hold</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Interview Type</label>
+                <select class="form-select" id="interviewFilter">
+                    <option value="">All Types</option>
+                    <option value="online interview">Online Interview</option>
+                    <option value="site interview">Site Interview</option>
+                    <option value="Hyprid interview">Hybrid Interview</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button class="btn btn-primary w-100" id="addCompany">
+                    <i class="fas fa-plus me-1"></i>Add
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table View -->
+<div id="tableContainer" style="display: none;">
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Logo</th>
+                            <th>Company Name</th>
+                            <th>Status</th>
+                            <th>Comments</th>
+                            <th>Interview Type</th>
+                            <th>Priority %</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in companies %}
+                        <tr>
+                            <td>
+                                <div class="company-logo">
+                                    <i class="{{ company.logo }} text-white"></i>
+                                </div>
+                            </td>
+                            <td><strong>{{ company.name }}</strong></td>
+                            <td>
+                                {% if company.status == 'Active' %}
+                                    <span class="badge bg-success">{{ company.status }}</span>
+                                {% else %}
+                                    <span class="badge bg-warning">{{ company.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ company.comments }}</td>
+                            <td>{{ company.interview_type }}</td>
+                            <td>
+                                {% if company.priority_percentage %}
+                                    <span class="badge bg-info">{{ company.priority_percentage }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary edit-company" data-company-id="{{ company.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-company" data-company-id="{{ company.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card View -->
+<div id="cardContainer">
+    <div class="row">
+        {% for company in companies %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="company-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="company-logo">
+                            <i class="{{ company.logo }} text-white"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-1">{{ company.name }}</h5>
+                            <p class="text-muted mb-0">{{ company.interview_type }}</p>
+                        </div>
+                        {% if company.status == 'Active' %}
+                            <span class="badge bg-success">{{ company.status }}</span>
+                        {% else %}
+                            <span class="badge bg-warning">{{ company.status }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            {% if company.comments %}
+                                <strong>Comments:</strong> {{ company.comments }}<br>
+                            {% endif %}
+                            {% if company.priority_percentage %}
+                                <strong>Priority:</strong> <span class="badge bg-info">{{ company.priority_percentage }}</span>
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="window.location.href='/company/{{ company.id }}'">
+                            <i class="fas fa-eye me-1"></i>Details
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm edit-company" data-company-id="{{ company.id }}">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm delete-company" data-company-id="{{ company.id }}">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Add Company Modal -->
+<div class="modal fade" id="addCompanyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Company</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCompanyForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addCompanyName" class="form-label">Company Name *</label>
+                                <input type="text" class="form-control" id="addCompanyName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addCompanyStatus" class="form-label">Status</label>
+                                <select class="form-select" id="addCompanyStatus">
+                                    <option value="Active">Active</option>
+                                    <option value="On hold">On Hold</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addCompanyInterviewType" class="form-label">Interview Type</label>
+                                <select class="form-select" id="addCompanyInterviewType">
+                                    <option value="site interview">Site Interview</option>
+                                    <option value="online interview">Online Interview</option>
+                                    <option value="Hybrid interview">Hybrid Interview</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addCompanyLocation" class="form-label">Location</label>
+                                <select class="form-select" id="addCompanyLocation">
+                                    <option value="Cairo">Cairo</option>
+                                    <option value="Nasr City">Nasr City</option>
+                                    <option value="6th October City">6th October City</option>
+                                    <option value="Hadayek El Maadi">Hadayek El Maadi</option>
+                                    <option value="Maadi">Maadi</option>
+                                    <option value="New Cairo">New Cairo</option>
+                                    <option value="Remote">Remote</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addCompanyPriority" class="form-label">Priority Percentage</label>
+                                <input type="text" class="form-control" id="addCompanyPriority" placeholder="e.g., 100%">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addCompanySalary" class="form-label">Salary</label>
+                                <input type="text" class="form-control" id="addCompanySalary" placeholder="e.g., 10,000 EGP">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addCompanyComments" class="form-label">Comments</label>
+                        <textarea class="form-control" id="addCompanyComments" rows="2" placeholder="Brief description or requirements"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addCompanyDetails" class="form-label">Detailed Information</label>
+                        <textarea class="form-control" id="addCompanyDetails" rows="4" placeholder="Detailed job description, requirements, benefits, etc."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addCompanyLogo" class="form-label">Company Logo (FontAwesome Icon)</label>
+                        <input type="text" class="form-control" id="addCompanyLogo" placeholder="e.g., fas fa-building" value="fas fa-building">
+                        <div class="form-text">Enter a FontAwesome icon class (e.g., fas fa-building, fas fa-phone, fas fa-globe)</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveNewCompany">Add Company</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Company Modal -->
+<div class="modal fade" id="editCompanyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Company</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCompanyForm">
+                    <input type="hidden" id="editCompanyId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editCompanyName" class="form-label">Company Name</label>
+                                <input type="text" class="form-control" id="editCompanyName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editCompanyStatus" class="form-label">Status</label>
+                                <select class="form-select" id="editCompanyStatus" required>
+                                    <option value="Active">Active</option>
+                                    <option value="On hold">On Hold</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editCompanyInterviewType" class="form-label">Interview Type</label>
+                                <select class="form-select" id="editCompanyInterviewType">
+                                    <option value="">Select Type</option>
+                                    <option value="online interview">Online Interview</option>
+                                    <option value="site interview">Site Interview</option>
+                                    <option value="Hyprid interview">Hybrid Interview</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editCompanyPriority" class="form-label">Priority Percentage</label>
+                                <input type="text" class="form-control" id="editCompanyPriority" placeholder="e.g., 100%">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCompanyComments" class="form-label">Comments</label>
+                        <textarea class="form-control" id="editCompanyComments" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCompanyLogo" class="form-label">Company Logo (FontAwesome Icon)</label>
+                        <input type="text" class="form-control" id="editCompanyLogo" placeholder="e.g., fas fa-building">
+                        <div class="form-text">Enter a FontAwesome icon class (e.g., fas fa-building, fas fa-phone)</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveCompanyChanges">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Company Modal -->
+<div class="modal fade" id="deleteCompanyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Company</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteCompanyName"></strong>?</p>
+                <input type="hidden" id="deleteCompanyId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteCompany">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="card stats-card mt-4">
+    <div class="card-body">
+        <h5 class="card-title">
+            <i class="fas fa-chart-pie me-2"></i>Companies Overview
+        </h5>
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="text-center">
+                    <h3 class="text-primary">{{ companies|length }}</h3>
+                    <small class="text-muted">Total Companies</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="text-center">
+                    <h3 class="text-success">{{ companies|selectattr('status', 'equalto', 'Active')|list|length }}</h3>
+                    <small class="text-muted">Active</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="text-center">
+                    <h3 class="text-warning">{{ companies|selectattr('status', 'equalto', 'On hold')|list|length }}</h3>
+                    <small class="text-muted">On Hold</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="text-center">
+                    <h3 class="text-info">{{ companies|selectattr('priority_percentage', 'ne', '')|list|length }}</h3>
+                    <small class="text-muted">With Priority</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// View toggle functionality
+document.getElementById('tableView').addEventListener('click', function() {
+    document.getElementById('tableContainer').style.display = 'block';
+    document.getElementById('cardContainer').style.display = 'none';
+    this.classList.add('btn-primary');
+    this.classList.remove('btn-outline-primary');
+    document.getElementById('cardView').classList.remove('btn-primary');
+    document.getElementById('cardView').classList.add('btn-outline-primary');
+});
+
+document.getElementById('cardView').addEventListener('click', function() {
+    document.getElementById('tableContainer').style.display = 'none';
+    document.getElementById('cardContainer').style.display = 'block';
+    this.classList.add('btn-primary');
+    this.classList.remove('btn-outline-primary');
+    document.getElementById('tableView').classList.remove('btn-primary');
+    document.getElementById('tableView').classList.add('btn-outline-primary');
+});
+
+// Search functionality
+document.getElementById('searchCompanies').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const cards = document.querySelectorAll('#cardContainer .company-card');
+    const rows = document.querySelectorAll('#tableContainer tbody tr');
+    
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            card.closest('.col-lg-4').style.display = 'block';
+        } else {
+            card.closest('.col-lg-4').style.display = 'none';
+        }
+    });
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Status filter
+document.getElementById('statusFilter').addEventListener('change', function() {
+    const selectedStatus = this.value;
+    const cards = document.querySelectorAll('#cardContainer .company-card');
+    const rows = document.querySelectorAll('#tableContainer tbody tr');
+    
+    cards.forEach(card => {
+        const statusBadge = card.querySelector('.badge');
+        if (selectedStatus === '' || statusBadge.textContent === selectedStatus) {
+            card.closest('.col-lg-4').style.display = 'block';
+        } else {
+            card.closest('.col-lg-4').style.display = 'none';
+        }
+    });
+    
+    rows.forEach(row => {
+        const statusCell = row.querySelector('td:nth-child(3) .badge');
+        if (selectedStatus === '' || (statusCell && statusCell.textContent === selectedStatus)) {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Edit company functionality
+document.querySelectorAll('.edit-company').forEach(button => {
+    button.addEventListener('click', function() {
+        const companyId = this.getAttribute('data-company-id');
+        
+        // Fetch company data
+        fetch(`/edit-company/${companyId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error loading company data');
+                    return;
+                }
+                
+                // Populate form
+                document.getElementById('editCompanyId').value = data.id;
+                document.getElementById('editCompanyName').value = data.name;
+                document.getElementById('editCompanyStatus').value = data.status;
+                document.getElementById('editCompanyComments').value = data.comments || '';
+                document.getElementById('editCompanyInterviewType').value = data.interview_type || '';
+                document.getElementById('editCompanyPriority').value = data.priority_percentage || '';
+                document.getElementById('editCompanyLogo').value = data.logo || '';
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('editCompanyModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading company data');
+            });
+    });
+});
+
+// Delete company functionality
+function setupDeleteCompanyButtons() {
+    document.querySelectorAll('.delete-company').forEach(button => {
+        button.addEventListener('click', function() {
+            const companyId = this.getAttribute('data-company-id');
+            // Find the company name for confirmation
+            let companyName = '';
+            // Try to get from table row
+            const row = this.closest('tr');
+            if (row) {
+                const nameCell = row.querySelector('td:nth-child(2)');
+                if (nameCell) {
+                    companyName = nameCell.textContent.trim();
+                }
+            }
+            // Try to get from card
+            const card = this.closest('.company-card');
+            if (card) {
+                const title = card.querySelector('.card-title');
+                if (title) {
+                    companyName = title.textContent.trim();
+                }
+            }
+            document.getElementById('deleteCompanyId').value = companyId;
+            document.getElementById('deleteCompanyName').textContent = companyName;
+            const modal = new bootstrap.Modal(document.getElementById('deleteCompanyModal'));
+            modal.show();
+        });
+    });
+}
+setupDeleteCompanyButtons();
+
+// Re-setup delete buttons after page reloads or content changes (if you use dynamic updates, call this again)
+
+// Confirm delete
+document.getElementById('confirmDeleteCompany').addEventListener('click', function() {
+    const companyId = document.getElementById('deleteCompanyId').value;
+    const button = this;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Deleting...';
+    button.disabled = true;
+
+    fetch(`/delete-company/${companyId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteCompanyModal'));
+            modal.hide();
+            alert('Company deleted successfully!');
+            location.reload();
+        } else {
+            alert('Error deleting company: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting company. Please try again.');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+});
+
+// Add Company functionality
+document.getElementById('addCompany').addEventListener('click', function() {
+    // Clear the form
+    document.getElementById('addCompanyForm').reset();
+    // Set default values
+    document.getElementById('addCompanyLogo').value = 'fas fa-building';
+    document.getElementById('addCompanyStatus').value = 'Active';
+    document.getElementById('addCompanyInterviewType').value = 'site interview';
+    document.getElementById('addCompanyLocation').value = 'Cairo';
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('addCompanyModal'));
+    modal.show();
+});
+
+// Save new company
+document.getElementById('saveNewCompany').addEventListener('click', function() {
+    const formData = new FormData();
+    
+    // Get form values
+    formData.append('name', document.getElementById('addCompanyName').value);
+    formData.append('status', document.getElementById('addCompanyStatus').value);
+    formData.append('comments', document.getElementById('addCompanyComments').value);
+    formData.append('interview_type', document.getElementById('addCompanyInterviewType').value);
+    formData.append('priority_percentage', document.getElementById('addCompanyPriority').value);
+    formData.append('logo', document.getElementById('addCompanyLogo').value);
+    formData.append('details', document.getElementById('addCompanyDetails').value);
+    formData.append('salary', document.getElementById('addCompanySalary').value);
+    formData.append('location', document.getElementById('addCompanyLocation').value);
+    
+    // Validate required fields
+    if (!document.getElementById('addCompanyName').value.trim()) {
+        alert('Company name is required!');
+        return;
+    }
+    
+    // Show loading state
+    const button = this;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Adding...';
+    button.disabled = true;
+    
+    fetch('/add-company', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Company added successfully!');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addCompanyModal'));
+            modal.hide();
+            
+            // Refresh page to show new company
+            location.reload();
+        } else {
+            alert('Error adding company: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding company. Please try again.');
+    })
+    .finally(() => {
+        // Restore button state
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+});
+
+// Function to refresh companies data
+function refreshCompaniesList() {
+    fetch('/refresh-companies')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Companies data refreshed successfully');
+                // You can add logic here to update the UI without page reload
+                // For now, we'll use page reload for simplicity
+            } else {
+                console.error('Error refreshing companies:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error refreshing companies:', error);
+        });
+}
+
+// Check sync status on page load
+function checkSyncStatus() {
+    fetch('/sync-status')
+        .then(response => response.json())
+        .then(data => {
+            const statusElement = document.getElementById('syncStatus');
+            let statusText = '';
+            
+            if (data.sheets_available) {
+                if (data.background_sync_running) {
+                    statusText = `<i class="fas fa-sync-alt fa-spin me-1 text-success"></i>Auto-sync active (${data.background_sync_interval}min)`;
+                } else if (data.last_sync) {
+                    statusText = `<i class="fas fa-check-circle me-1 text-success"></i>Last sync: ${data.last_sync}`;
+                } else {
+                    statusText = `<i class="fas fa-exclamation-triangle me-1 text-warning"></i>No sync performed yet`;
+                }
+            } else {
+                statusText = `<i class="fas fa-times-circle me-1 text-danger"></i>Google Sheets not configured`;
+            }
+            
+            statusElement.innerHTML = statusText;
+        })
+        .catch(error => {
+            console.error('Error checking sync status:', error);
+            document.getElementById('syncStatus').innerHTML = `<i class="fas fa-times-circle me-1 text-danger"></i>Error checking sync status`;
+        });
+}
+
+// Check sync status on page load
+checkSyncStatus();
+
+// Refresh companies list every 30 seconds to ensure updates are visible
+setInterval(refreshCompaniesList, 30000);
+
+// Sync from Google Sheets
+document.getElementById('syncSheets').addEventListener('click', function() {
+    const button = this;
+    const originalText = button.innerHTML;
+    
+    // Show loading state
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Syncing...';
+    button.disabled = true;
+    
+    fetch('/sync-sheets')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Successfully synced companies from Google Sheets!');
+                location.reload(); // Refresh page to show updated data
+            } else {
+                alert('Failed to sync: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error syncing from Google Sheets. Please check your credentials and permissions.');
+        })
+        .finally(() => {
+            // Restore button state
+            button.innerHTML = originalText;
+            button.disabled = false;
+            // Update sync status
+            checkSyncStatus();
+        });
+});
+
+// Save company changes
+document.getElementById('saveCompanyChanges').addEventListener('click', function() {
+    const companyId = document.getElementById('editCompanyId').value;
+    const formData = new FormData();
+    
+    formData.append('name', document.getElementById('editCompanyName').value);
+    formData.append('status', document.getElementById('editCompanyStatus').value);
+    formData.append('comments', document.getElementById('editCompanyComments').value);
+    formData.append('interview_type', document.getElementById('editCompanyInterviewType').value);
+    formData.append('priority_percentage', document.getElementById('editCompanyPriority').value);
+    formData.append('logo', document.getElementById('editCompanyLogo').value);
+    
+    // Show loading state
+    const button = this;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+    button.disabled = true;
+    
+    fetch(`/edit-company/${companyId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Company updated successfully!');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editCompanyModal'));
+            modal.hide();
+            
+            // Refresh page to show updated data
+            location.reload();
+        } else {
+            alert('Error updating company: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating company. Please try again.');
+    })
+    .finally(() => {
+        // Restore button state
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+});
+</script>
+{% endblock %}

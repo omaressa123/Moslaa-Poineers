@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 mb-4 rounded-4 shadow-sm bg-light position-relative" style="background: linear-gradient(90deg, #800080 0%, #3498db 100%); min-height: 180px;">
+    <div class="row align-items-center">
+        <div class="col-md-2 text-center">
+            <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow" style="width: 90px; height: 90px;">
+                <i class="fas fa-map-marker-alt text-primary" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+        <div class="col-md-10 text-white">
+            <h1 class="display-5 fw-bold mb-1">Companies by <span class="text-warning">Location</span></h1>
+            <p class="lead mb-0">Explore all companies grouped by their main location.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for location, companies in locations.items() %}
+    <div class="col-12">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-map-marker-alt me-2"></i>{{ location }}
+                </h3>
+                <div class="row g-3">
+                    {% for company in companies %}
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm company-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="{{ company.logo }} fa-2x me-2 text-primary"></i>
+                                    <h5 class="card-title mb-0">{{ company.name }}</h5>
+                                </div>
+                                <span class="badge bg-secondary mb-2">{{ company.status }}</span>
+                                <p class="small text-muted mb-1">{{ company.comments }}</p>
+                                <p class="mb-1"><strong>Interview:</strong> {{ company.interview_type }}</p>
+                                {% if company.priority_percentage %}
+                                <span class="badge bg-info">Priority: {{ company.priority_percentage }}</span>
+                                {% endif %}
+                                
+                                <!-- Interview Message Template -->
+                                <div class="mt-3">
+                                    <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#message-{{ company.id }}" aria-expanded="false">
+                                        <i class="fas fa-envelope me-1"></i>Interview Message
+                                    </button>
+                                    <div class="collapse mt-2" id="message-{{ company.id }}">
+                                        <div class="card card-body bg-light">
+                                            <small class="text-muted">
+                                                {% if company.name == 'VXI' %}
+                                                Hello,<br><br>
+                                                I hope you are doing well. I am writing to confirm your interview for the customer service position at VXI Egypt.<br><br>
+                                                <strong>Scheduled on:</strong> [day]<br>
+                                                <strong>At:</strong> [time]<br><br>
+                                                As a quick reminder, the interview will be held at:<br>
+                                                📍📍Address<br>
+                                                📍VXI Egypt Location on Google Maps<br>
+                                                VXI Egypt City Stars, Nasr City<br><br>
+                                                <a href="https://maps.app.goo.gl/WTC2pq82TobDpfUc9" target="_blank">https://maps.app.goo.gl/WTC2pq82TobDpfUc9</a><br><br>
+                                                Don't forget to tell them that you are recruited by MOSLA Pioneers and write that on the application form.<br><br>
+                                                Reply with confirmed 👍 if you will attend on time or want me to reschedule.<br><br>
+                                                Don't forget to Follow Us on:<br>
+                                                <a href="https://whatsapp.com/channel/0029Vb3YSOwB4hdUZmgDwT3Y" target="_blank">WhatsApp Channel</a><br>
+                                                <a href="https://www.facebook.com/share/1BCKRWvzBG/?mibextid=wwXIfr" target="_blank">Facebook</a><br>
+                                                <a href="https://www.instagram.com/mosla_pioneers?igsh=MW05MHF6M3E1dTR3" target="_blank">Instagram</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a>
+                                                {% elif company.name == 'Ilead' %}
+                                                Hello Dear,<br><br>
+                                                We are confirming your interview in Ilead Company tomorrow<br><br>
+                                                <strong>Date:</strong> [Date]<br>
+                                                <strong>Time:</strong> 12 To 2pm<br>
+                                                <strong>Dress Code:</strong> Smart Casual<br><br>
+                                                Location will be in a link below<br><br>
+                                                Please reply with "Confirmed" if you're coming in the stated time above for sure<br><br>
+                                                📍📍Address<br>
+                                                ‎٤ كمال نور الدين عباس العقاد<br>
+                                                ‎الدور 14<br>
+                                                ‎العماره اللي ورا كشري التحرير<br><br>
+                                                <a href="https://goo.gl/maps/MCMyZKkvEEjz2oL97" target="_blank">https://goo.gl/maps/MCMyZKkvEEjz2oL97</a><br><br>
+                                                Don't forget to tell them that you are recruited by MOSLA Pioneers and write on the application form<br><br>
+                                                Follow us on:<br>
+                                                <a href="https://www.facebook.com/share/Afue2fS38HNDgFgn/?mibextid=LQQJ4d" target="_blank">Facebook</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a>
+                                                {% elif company.name == 'Insource' %}
+                                                Hello,<br><br>
+                                                I hope you are doing well. I am writing to confirm your interview for the Telesales position at insource<br><br>
+                                                <strong>scheduled on:</strong> [day]<br>
+                                                <strong>at</strong> [time]<br><br>
+                                                As a quick reminder, the interview will be held at<br>
+                                                📍📍Address<br>
+                                                ‎٤ كمال نور الدين عباس العقاد<br>
+                                                ‎الدور 8<br>
+                                                ‎العماره اللي ورا كشري التحرير<br><br>
+                                                <a href="https://goo.gl/maps/MCMyZKkvEEjz2oL97" target="_blank">https://goo.gl/maps/MCMyZKkvEEjz2oL97</a><br><br>
+                                                Don't forget to tell them that you are recruited by MOSLA Pioneers and write on the application form<br><br>
+                                                Reply with confirmed 👍 if you will attend on time or want me to reschedule<br><br>
+                                                Don't forget to Follow Us on:<br>
+                                                <a href="https://whatsapp.com/channel/0029Vb3YSOwB4hdUZmgDwT3Y" target="_blank">WhatsApp Channel</a><br>
+                                                <a href="https://www.facebook.com/share/1BCKRWvzBG/?mibextid=wwXIfr" target="_blank">Facebook</a><br>
+                                                <a href="https://www.instagram.com/mosla_pioneers?igsh=MW05MHF6M3E1dTR3" target="_blank">Instagram</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a>
+                                                {% elif company.name == 'Norma' %}
+                                                Hello,<br><br>
+                                                I hope you are doing well. I am writing to confirm your interview for the Telesales position at Norma Global Solutions<br><br>
+                                                <strong>scheduled on:</strong> [day]<br>
+                                                <strong>at</strong> [time]<br><br>
+                                                As a quick reminder, the interview will be held at<br>
+                                                📍📍Address<br>
+                                                ‎73 abo dawood el zaheri<br>
+                                                14th floor beside cib bank<br>
+                                                Nasr city<br><br>
+                                                <a href="https://maps.google.com/?q=30.061230,31.355534" target="_blank">https://maps.google.com/?q=30.061230,31.355534</a><br><br>
+                                                Don't forget to tell them that you are recruited by MOSLA Pioneers and write on the application form<br><br>
+                                                Reply with confirmed 👍 if you will attend on time or want me to reschedule<br><br>
+                                                Don't forget to Follow Us on:<br>
+                                                <a href="https://whatsapp.com/channel/0029Vb3YSOwB4hdUZmgDwT3Y" target="_blank">WhatsApp Channel</a><br>
+                                                <a href="https://www.facebook.com/share/1BCKRWvzBG/?mibextid=wwXIfr" target="_blank">Facebook</a><br>
+                                                <a href="https://www.instagram.com/mosla_pioneers?igsh=MW05MHF6M3E1dTR3" target="_blank">Instagram</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a>
+                                                {% elif company.name == 'Housing' %}
+                                                Hello Dear,<br><br>
+                                                We are confirming your interview in Housing Company tomorrow on [Day] insha'allah.<br><br>
+                                                <strong>Date:</strong> [Date]<br>
+                                                <strong>Time:</strong> From [time] to [time]<br>
+                                                <strong>Dress Code:</strong> Smart Casual<br><br>
+                                                Location will be in a link below<br><br>
+                                                Please reply with "Confirmed" if you're coming in the stated time above for sure.<br><br>
+                                                📍Address<br>
+                                                Ashgar Darna Compound, Maadi Ring Road, building A5, 2nd floor<br><br>
+                                                <a href="https://maps.app.goo.gl/ztGk1fYv3Zn4NGXw5" target="_blank">https://maps.app.goo.gl/ztGk1fYv3Zn4NGXw5</a><br><br>
+                                                Don't forget to tell them that you are recruited by "MOSLA Pioneers" and write on the application form<br><br>
+                                                Follow Us on:<br>
+                                                <a href="https://www.facebook.com/profile.php?id=61553560635293&mibextid=kFxxJD" target="_blank">Facebook</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a><br>
+                                                <a href="https://www.instagram.com/mosla_pioneers?igsh=MWJjeDk3dndxN3M2" target="_blank">Instagram</a>
+                                                {% elif company.name == 'ElShaheen Investment' %}
+                                                Hello,<br><br>
+                                                I hope you are doing well. I am writing to confirm your interview for the Telesales position at aces company (asked about Hr Adam Walters)<br><br>
+                                                <strong>scheduled on:</strong> [day]<br>
+                                                <strong>at</strong> [time]<br><br>
+                                                As a quick reminder, the interview will be held at<br>
+                                                📍📍Address<br>
+                                                37CM+HMP, As Sarayat, El Weili, Cairo Governorate 4391072, Egypt<br><br>
+                                                <a href="https://maps.google.com/?q=30.071482,31.284391" target="_blank">https://maps.google.com/?q=30.071482,31.284391</a><br><br>
+                                                Don't forget to tell them that you are recruited by MOSLA Pioneers and write on the application form<br><br>
+                                                Reply with confirmed 👍 if you will attend on time or want me to reschedule<br><br>
+                                                Don't forget to Follow Us on:<br>
+                                                <a href="https://whatsapp.com/channel/0029Vb3YSOwB4hdUZmgDwT3Y" target="_blank">WhatsApp Channel</a><br>
+                                                <a href="https://www.facebook.com/share/1BCKRWvzBG/?mibextid=wwXIfr" target="_blank">Facebook</a><br>
+                                                <a href="https://www.instagram.com/mosla_pioneers?igsh=MW05MHF6M3E1dTR3" target="_blank">Instagram</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a>
+                                                {% elif company.name == 'Evolve Marketing LLC' %}
+                                                Hello,<br><br>
+                                                I hope you are doing well. I am writing to confirm your interview for the Telesales position at Evolve Marketing LLC<br><br>
+                                                <strong>scheduled on:</strong> [day]<br>
+                                                <strong>at</strong> [time] from 6pm to 9pm<br><br>
+                                                As a quick reminder, the interview will be held at<br>
+                                                📍📍Address<br>
+                                                The company is on the 1st floor apartment 102 above Bassem Market Farid semeika's branch<br><br>
+                                                <a href="https://maps.app.goo.gl/a8wBAFQxLbHJnmUm7?g_st=ic" target="_blank">https://maps.app.goo.gl/a8wBAFQxLbHJnmUm7?g_st=ic</a><br><br>
+                                                Don't forget to tell them that you are recruited by MOSLA Pioneers and write on the application form<br><br>
+                                                Reply with confirmed 👍 if you will attend on time or want me to reschedule<br><br>
+                                                Don't forget to Follow Us on:<br>
+                                                <a href="https://whatsapp.com/channel/0029Vb3YSOwB4hdUZmgDwT3Y" target="_blank">WhatsApp Channel</a><br>
+                                                <a href="https://www.facebook.com/share/1BCKRWvzBG/?mibextid=wwXIfr" target="_blank">Facebook</a><br>
+                                                <a href="https://www.instagram.com/mosla_pioneers?igsh=MW05MHF6M3E1dTR3" target="_blank">Instagram</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a>
+                                                {% else %}
+                                                Hello,<br><br>
+                                                I hope you are doing well. I am writing to confirm your interview for the position at {{ company.name }}<br><br>
+                                                <strong>Scheduled on:</strong> [day]<br>
+                                                <strong>At:</strong> [time]<br><br>
+                                                Please reply with confirmed 👍 if you will attend on time or want me to reschedule.<br><br>
+                                                Don't forget to tell them that you are recruited by MOSLA Pioneers and write that on the application form.<br><br>
+                                                Don't forget to Follow Us on:<br>
+                                                <a href="https://whatsapp.com/channel/0029Vb3YSOwB4hdUZmgDwT3Y" target="_blank">WhatsApp Channel</a><br>
+                                                <a href="https://www.facebook.com/share/1BCKRWvzBG/?mibextid=wwXIfr" target="_blank">Facebook</a><br>
+                                                <a href="https://www.instagram.com/mosla_pioneers?igsh=MW05MHF6M3E1dTR3" target="_blank">Instagram</a><br>
+                                                <a href="https://www.linkedin.com/company/mosla-pioneers/" target="_blank">LinkedIn</a>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 text-end">
+                                <a href="/company/{{ company.id }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.company-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.company-card:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 8px 24px rgba(52, 152, 219, 0.15);
+}
+</style>
+{% endblock %} 

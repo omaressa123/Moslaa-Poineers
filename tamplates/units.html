@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.unit-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.unit-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.unit-header .manager-info {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.team-leader-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: none;
+    overflow: hidden;
+}
+
+.team-leader-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.team-leader-card .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+    border: none;
+}
+
+.team-leader-card .card-body {
+    padding: 2rem;
+}
+
+.team-leader-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+}
+
+.recruiter-list {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.recruiter-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 0.9rem;
+}
+
+.recruiter-item:last-child {
+    border-bottom: none;
+}
+
+.stats-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 0.5rem;
+}
+
+.detail-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.detail-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.phone-info {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+    font-weight: 500;
+}
+
+.team-leader-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.recruiter-count {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+</style>
+
+<div class="unit-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1><i class="fas fa-sitemap me-3"></i>{{ unit_c.name }}</h1>
+            <div class="manager-info">
+                <i class="fas fa-user-tie me-2"></i>Manager: <strong>{{ unit_c.manager }}</strong>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="stats-badge">
+                <i class="fas fa-users me-2"></i>{{ team_leaders|length }} Team Leaders
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% for leader in team_leaders %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="team-leader-card">
+            <div class="card-header">
+                <div class="team-leader-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h5 class="team-leader-title">{{ leader.name }}</h5>
+                <div class="recruiter-count">
+                    {{ leader.recruiters|length }}/10 Recruiters
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="phone-info">
+                    <i class="fas fa-phone me-2"></i>{{ leader.phone }}
+                </div>
+                
+                {% if leader.recruiters %}
+                <div class="recruiter-list">
+                    <h6 class="mb-2"><i class="fas fa-users me-2"></i>Recruiters:</h6>
+                    {% for recruiter in leader.recruiters %}
+                    <div class="recruiter-item">
+                        <i class="fas fa-user me-2"></i>{{ recruiter }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-muted text-center py-3">
+                    <i class="fas fa-user-plus me-2"></i>No recruiters assigned yet
+                </div>
+                {% endif %}
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('team_leader_detail', leader_id=leader.id) }}" class="detail-btn">
+                        <i class="fas fa-eye me-2"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

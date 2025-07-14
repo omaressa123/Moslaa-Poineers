@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; background: #800080;">
+                        <i class="{{ company.logo }} text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-0">{{ company.name }}</h2>
+                        {% if company.status == 'Active' %}
+                            <span class="badge bg-success">{{ company.status }}</span>
+                        {% else %}
+                            <span class="badge bg-warning">{{ company.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                <h5 class="mb-2">Salary</h5>
+                <p class="fs-5 text-success">{{ company.salary or 'Not specified' }}</p>
+                <h5 class="mb-2">Job Offer Details</h5>
+                <pre class="bg-light p-3 rounded" style="white-space: pre-wrap;">{{ company.details or 'No details provided.' }}</pre>
+                <h5 class="mb-2">Other Info</h5>
+                <ul class="list-group mb-3">
+                    <li class="list-group-item"><strong>Comments:</strong> {{ company.comments or '-' }}</li>
+                    <li class="list-group-item"><strong>Interview Type:</strong> {{ company.interview_type or '-' }}</li>
+                    <li class="list-group-item"><strong>Priority %:</strong> {{ company.priority_percentage or '-' }}</li>
+                </ul>
+                <a href="{{ url_for('companies') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back to Companies</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

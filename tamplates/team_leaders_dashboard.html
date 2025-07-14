@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="p-4 mb-4 rounded-4 shadow-sm bg-light position-relative" style="background: linear-gradient(90deg, #800080 0%, #3498db 100%); min-height: 180px;">
+    <div class="row align-items-center">
+        <div class="col-md-2 text-center">
+            <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow" style="width: 90px; height: 90px;">
+                <i class="fas fa-users-cog text-primary" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+        <div class="col-md-10 text-white">
+            <h1 class="display-5 fw-bold mb-1">Team Leaders <span class="text-warning">Dashboard</span></h1>
+            <p class="lead mb-0">Comprehensive analysis of hiring performance for each team leader in Unit C.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Stats -->
+<div class="row mb-4 g-4">
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <i class="fas fa-users text-primary mb-2" style="font-size: 2rem;"></i>
+                <h4 class="fw-bold mb-0">{{ total_leaders }}</h4>
+                <small class="text-muted">Total Team Leaders</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <i class="fas fa-user-plus text-success mb-2" style="font-size: 2rem;"></i>
+                <h4 class="fw-bold mb-0">{{ total_hires }}</h4>
+                <small class="text-muted">Total Hires</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <i class="fas fa-chart-line text-info mb-2" style="font-size: 2rem;"></i>
+                <h4 class="fw-bold mb-0">{{ avg_hires|round(1) }}</h4>
+                <small class="text-muted">Average Hires</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+                <i class="fas fa-trophy text-warning mb-2" style="font-size: 2rem;"></i>
+                <h4 class="fw-bold mb-0">{{ top_performer.name }}</h4>
+                <small class="text-muted">Top Performer</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Leaders Hiring Boxes -->
+<div class="row mb-4 g-4">
+    {% for leader in team_leaders %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-user-tie text-{{ leader.color }} mb-2" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="card-title fw-bold mb-2">{{ leader.name }}</h5>
+                <div class="hiring-number-box mb-3">
+                    <div class="hiring-number">{{ leader.hires }}</div>
+                    <small class="text-muted">Hires This Month</small>
+                </div>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar bg-{{ leader.color }}" role="progressbar" 
+                         style="width: {{ leader.performance }}%;" 
+                         aria-valuenow="{{ leader.performance }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>Performance</span>
+                    <span>{{ leader.performance|round(1) }}%</span>
+                </div>
+                <div class="mt-3">
+                    <a href="/team-leader/{{ leader.id }}" class="btn btn-outline-{{ leader.color }} btn-sm">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Performance Chart -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <h3 class="card-title mb-4">
+            <i class="fas fa-chart-bar me-2"></i>Hiring Performance Overview
+        </h3>
+        <div class="chart-container" style="position: relative; height:400px;">
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Performance Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <h3 class="card-title mb-4">
+            <i class="fas fa-table me-2"></i>Detailed Performance Analysis
+        </h3>
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Team Leader</th>
+                        <th>Phone</th>
+                        <th>Hires This Month</th>
+                        <th>Performance (%)</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for leader in team_leaders %}
+                    <tr>
+                        <td class="fw-semibold">
+                            <i class="fas fa-user-tie text-{{ leader.color }} me-2"></i>
+                            {{ leader.name }}
+                        </td>
+                        <td>{{ leader.phone }}</td>
+                        <td>
+                            <span class="badge bg-{{ leader.color }} fs-6">{{ leader.hires }}</span>
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-{{ leader.color }}" role="progressbar" 
+                                     style="width: {{ leader.performance }}%;" 
+                                     aria-valuenow="{{ leader.performance }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ leader.performance|round(1) }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if leader.performance >= 80 %}
+                                <span class="badge bg-success">Excellent</span>
+                            {% elif leader.performance >= 60 %}
+                                <span class="badge bg-warning">Good</span>
+                            {% elif leader.performance >= 40 %}
+                                <span class="badge bg-info">Average</span>
+                            {% else %}
+                                <span class="badge bg-danger">Needs Improvement</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/team-leader/{{ leader.id }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit me-1"></i>Manage
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chartLabels = {{ chart_labels|tojson }};
+const chartData = {{ chart_data|tojson }};
+const chartColors = [
+    '#800080', // purple
+    '#3498db', // blue
+    '#198754', // green
+    '#ffc107', // yellow
+    '#dc3545'  // red
+];
+
+const ctx = document.getElementById('performanceChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: chartLabels,
+        datasets: [{
+            label: 'Number of Hires',
+            data: chartData,
+            backgroundColor: chartColors,
+            borderColor: chartColors,
+            borderWidth: 2,
+            borderRadius: 8,
+            maxBarThickness: 60
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Hires: ' + context.parsed.y;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                title: { 
+                    display: true, 
+                    text: 'Team Leader',
+                    font: { size: 14, weight: 'bold' }
+                },
+                grid: { display: false }
+            },
+            y: {
+                beginAtZero: true,
+                title: { 
+                    display: true, 
+                    text: 'Number of Hires',
+                    font: { size: 14, weight: 'bold' }
+                },
+                ticks: {
+                    stepSize: 1,
+                    precision: 0
+                },
+                grid: { color: '#f0f0f0' }
+            }
+        }
+    }
+});
+</script>
+
+<style>
+.hiring-number-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid #dee2e6;
+}
+
+.hiring-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #495057;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.card:hover .hiring-number-box {
+    border-color: #3498db;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+</style>
+{% endblock %} 
